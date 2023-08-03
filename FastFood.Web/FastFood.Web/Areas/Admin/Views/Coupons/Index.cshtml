@@ -1,0 +1,74 @@
+﻿@model IEnumerable<FastFood.Models.Coupon>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+        
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Discount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MinimumAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CouponPicture)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                <label>@(Convert.ToInt32(item.Type)==0?"Percent":"Currency")</label>
+             
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Discount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MinimumAmount)
+            </td>
+            <td>
+                @{
+                var base64 = Convert.ToBase64String(item.CouponPicture);
+                var imgsrc = string.Format("data:image/jpg;base64,{0}", base64);
+            }
+            <img src="@imgsrc" height="50" width="50" style="border-radius:100%" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+               <partial name="_TableActionLink" model="@item.Id"/>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

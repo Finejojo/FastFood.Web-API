@@ -1,0 +1,46 @@
+﻿@model FastFood.Models.Cart
+
+<h1>Product Details</h1>
+<form asp-action="Details" method="post">
+    <div class="row">
+        <div class="col-4">
+            <img src="@Model.Item.Image" width="200" height="200"/>
+            <input type="hidden" asp-for="ItemId"/>
+        </div>
+        <div class="col-8">
+            <div class="row">
+                 <label asp-for="Item.Title">Product Name : @Model.Item.Title</label>
+            </div>
+            <div class="row">
+                  <label asp-for="Item.Description">Item Description : @Html.Raw(Model.Item.Description)</label>
+            </div>
+            <div class="row">
+                  <label asp-for="Item.Description">Item Price: @Model.Item.Price.ToString("0.00")</label>
+             </div>     
+             <div class="row">
+                     <label asp-for="Item.Category.Id">Item Category: @Model.Item.Category.Title</label>
+             </div>
+             <div class="row">
+                      <label asp-for="Item.SubCategory.Id">Item Category: @Model.Item.SubCategory.Title</label>
+                      </div>
+                      <div class="row">
+                     
+                        
+                                <label asp-for="Count"></label>
+                              <input asp-for="Count" class="form-control" />
+                              <span asp-validation-for="Count" class="text-danger"></span>
+                          
+                    
+                     </div>
+                     <div class="row mt-2">
+                      
+                        
+                                <button class="btn btn-success" asp-action="Index" asp-controller="Home">Back to List</button>
+                          <button type="submit" class="btn btn-dark">Add to Cart</button>
+                     
+                     </div>
+            
+          
+        </div>
+    </div>
+</form>

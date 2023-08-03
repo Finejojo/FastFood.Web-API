@@ -1,0 +1,206 @@
+﻿@model FastFood.Web.ViewModels.CartOrderViewModel
+@using Microsoft.Extensions.Options
+
+@inject IOptions<FastFood.Web.Utility.PaymentSettings> Stripe
+@{
+    ViewData["Title"] = "Summary";
+}
+
+<form method="post">
+     <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card mb-4">
+                <div class="card-header py-3">
+                    <h5 class="mb-0">Shipping details</h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <!-- 2 column grid layout with text inputs for the first and last names -->
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-outline">
+                                    <input id="nameTxt" type="text" asp-for="@Model.OrderHeader.Name" class="form-control" />
+                                    <label class="form-label" for="form7Example1">Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col">
+                            <div class="form-outline mb-4">
+                                <input id="phoneTxt" type="text" asp-for="@Model.OrderHeader.Phone" class="form-control" />
+                                <label class="form-label" for="form7Example6">Phone</label>
+                            </div>
+                            </div>
+                            </div>
+                        <div class="row mb-4">
+                            <div class="col">
+                                <div class="form-outline mb-4">
+                                    <input id="dateTxt" type="text" asp-for="@Model.OrderHeader.OrderDate" value="" class="form-control" />
+                                    <label class="form-label" for="form7Example6">Pick Date</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col">
+                            <div class="form-outline mb-4">
+                                <input id="timeTxt" type="text" asp-for="@Model.OrderHeader.TimeofPick" value="" class="form-control" />
+                                <label class="form-label" for="form7Example6">Pick Time</label>
+                            </div>
+                            </div>
+                        </div>
+                    </form>
+                
+            </div>
+        </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-12 col-md-4 offset-md-8">
+
+                        @{
+                            var OrderTotal = Model.OrderHeader.OrderTotal * 100;
+                        }
+                        <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                                data-key="@Stripe.Value.PublishableKey"
+                                data-amount="@OrderTotal"
+                                data-name="Fast Food"
+                                data-label="Place Order"
+                                data-description="Quality Food."
+                                data-locale="auto"
+                                data-allow-remember-me="false"
+                                data-image="https://stripe.com/img/documentation/checkout/marketplace.png">
+                        </script>
+                        <script>
+                            document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+                        </script>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card mb-4">
+                <div class="card-header py-3">
+                    <h5 class="mb-0">Summary</h5>
+                </div>
+
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var details in @Model.ListofCart)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                                <span>@details.Item.Title</span>
+                                <span>QTY: @details.Count</span>
+                                <span>@(((details.Item.Price) * (details.Count))) USD</span>
+                            </li>
+                        }
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                            <div>
+                                <strong>Total amount</strong>
+                                <strong>
+                                    <p class="mb-0">(including VAT)</p>
+                                </strong>
+                            </div>
+                            <span><strong>@Model.OrderHeader.OrderTotal.ToString("C")</strong></span>
+                        </li>
+                    </ul>
+
+                    <button onclick="return InputValidate()" type="submit" id="btnPlaceOrder" value="Place Order" class="btn btn-success form-control">Place Order</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
+
+    <script>
+        $(function () {
+
+            var minDt = 0;
+            if (getTimeFromCurrentDate() >= "20.00") {
+                minDt = 1;
+            }
+
+
+            $("#dateTxt").datepicker({ minDate: minDt, maxDate: "+1W" });
+            $("#timeTxt").timepicker({'minTime': '11:00 AM', 'maxTime': '9:00 PM', step: '30'})
+        });
+
+
+
+
+        function setPickUpTime() {
+            var dateSelected = document.getElementById("dateTxt").value;
+            var dt = new Date(dateSelected);
+            var today = new Date();
+
+            dt.setHours(0, 0, 0, 0);
+            if (dt > today) {
+                selectedTime = '11:00am';
+            }
+            else {
+                selectedTime = getTimeFromCurrentDate();
+            }
+
+            $('#timeTxt').timepicker('option', 'minTime', selectedTime);
+
+        }
+
+
+        function getTimeFromCurrentDate() {
+            var curDt = new Date();
+
+            var minTime = "";
+            if (curDt.getHours() < 11) {
+                minTime = '12:00pm';
+            }
+            else {
+                if (curDt.getMinutes() < 30) {
+                    minTime = (curDt.getHours() + 1).toString() + ':30pm'
+                }
+                else {
+                    minTime = (curDt.getHours() + 2).toString() + ':00pm'
+                }
+            }
+            return minTime;
+        }
+
+        $('#dateTxt').change(function () {
+            setPickUpTime();
+        });
+
+
+    function InputValidate()
+    {
+        var date =  document.getElementById("dateTxt").value;
+        var time = document.getElementById("timeTxt").value;
+        var name =  document.getElementById("nameTxt").value;
+        var phone =  document.getElementById("phoneTxt").value;
+        if(date.toString().length==0){
+        alert("Please Select Pickup Date");
+        return false;
+        }
+       else if (time.toString().length == 0) {
+            alert("Please Select Pickup Time");
+            return false;
+        }
+        else if (name.toString().length == 0) {
+            alert("Please Select Pickup Name");
+            return false;
+        }
+        else if (phone.toString().length == 0) {
+            alert("Please Add Phone Number");
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+
+
+    }
+</script>
+}

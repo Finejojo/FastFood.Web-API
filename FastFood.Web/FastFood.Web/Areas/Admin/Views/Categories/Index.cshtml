@@ -1,0 +1,99 @@
+﻿@model IEnumerable<FastFood.Web.ViewModels.CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table" id="tblCategory">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th style="width:150px">
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th style="width:150px"></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td class="categoryId">
+                <span>@item.Id</span>
+            </td>
+            <td class="CategoryTitle">
+                <span >@item.Title</span>
+                <input type="text" value="@item.Title" style="display:none"/>
+            </td>
+         
+                 <td style="width:150px">
+                    <a class="Edit" href="javascript:;">Edit</a>
+                    <a class="Update" href="javascript:;" style="display:none">Update</a>
+                    <a class="Cancel" href="javascript:;" style="display:none">Cancel</a>
+                    <a class="Delete" href="javascript:;">Delete</a>
+                 </td>
+           
+        </tr>
+}
+    </tbody>
+</table>
+ 
+    @section scripts
+    {
+        <script type="text/javascript">
+      
+        $("body").on("click", "#tblCategory .Edit", function () {
+            var row = $(this).closest("tr");
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0) {
+                    $(this).find("input").show();
+                    $(this).find("span").hide();
+                }
+            });
+            row.find(".Update").show();
+            row.find(".Cancel").show();
+            row.find(".Delete").hide();
+            $(this).hide();
+        });
+ 
+      
+        $("body").on("click", "#tblCategory .Update", function () {
+            var row = $(this).closest("tr");
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0) {
+                    var span = $(this).find("span");
+                    var input = $(this).find("input");
+                    span.html(input.val());
+                    span.show();
+                    input.hide();
+                }
+            });
+            row.find(".Edit").show();
+            row.find(".Delete").show();
+            row.find(".Cancel").hide();
+            $(this).hide();
+           
+ 
+            var CategoryViewModel = {
+                Id: parseInt(row.find(".categoryId").find("span").html()),
+                Title: row.find(".CategoryTitle").find("span").html()
+            };
+            
+           
+            $.ajax({
+                type: "POST",
+                url: "/Admin/Categories/Edit",
+                data: { vm: CategoryViewModel }
+                
+            });
+        });
+ 
+  
+    </script>
+    }
